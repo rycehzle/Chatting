@@ -1,0 +1,3 @@
+Ekstrak zip ini ke folder proyek (Chatting), pilih Replace/Timpa.
+Lalu: git add . ; git commit ; git push (atau upload manual ke GitHub).
+Isi: src/config/appConfig.js, src/styles/theme.css, public/assets/logo/ChatGPT.png

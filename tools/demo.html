@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Editor Tampilan</title>
+<style>
+:root{--bg:#fff;--sidebar:#f9f9f9;--surface:#fff;--composer:#f4f4f4;--text:#0d0d0d;--text-2:#5d5d5d;--text-3:#8f8f8f;--border:#e5e5e5;--hover:#efefef;--hover-strong:#e7e7e7;--accent:#0f766e;--on-accent:#fff;--bubble-mine:#f4f4f4;--bubble-other:var(--hover-strong);--shadow-pop:0 12px 32px rgba(0,0,0,.14);
+--font:ui-sans-serif,-apple-system,system-ui,'Segoe UI',Roboto,sans-serif;--font-size:16px;--sidebar-width:260px;--content-width:768px;--radius-bubble:24px;--radius-composer:28px;color-scheme:light}
+:root[data-theme=dark]{--bg:#0b0b0b;--sidebar:#0b0b0b;--surface:#1f1f1f;--composer:#1f1f1f;--text:#ececec;--text-2:#9b9b9b;--text-3:#6b6b6b;--border:#262626;--hover:#1a1a1a;--hover-strong:#262626;--accent:#2dd4bf;--on-accent:#04201d;--bubble-mine:#262626;--shadow-pop:0 12px 32px rgba(0,0,0,.6);color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:var(--font);font-size:var(--font-size);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}button{border:0;background:none;cursor:pointer;padding:0}svg{stroke-width:2}
+.app{display:flex;height:100dvh}
+aside{width:var(--sidebar-width);flex-shrink:0;overflow:hidden;background:var(--sidebar);border-right:1px solid var(--border);transition:width .2s}aside.off{width:0;border-right-width:0}
+.sin{width:var(--sidebar-width);height:100%;display:flex;flex-direction:column;padding:10px 8px;gap:2px;font-size:14px}
+.top{display:flex;align-items:center;padding:6px 4px 12px 10px}.brand{flex:1;font-size:17px;font-weight:600}
+.bw{display:inline-flex;align-items:center;gap:10px}.lg{display:grid;place-items:center;background:var(--accent);color:var(--on-accent);font-weight:700;flex-shrink:0}
+.ib{width:40px;height:40px;display:grid;place-items:center;border-radius:10px;color:var(--text-2)}.ib:hover{background:var(--hover-strong);color:var(--text)}.ib svg{width:22px;height:22px}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer}.nav:hover{background:var(--hover)}.nav svg{width:20px;height:20px}
+.label{margin:18px 10px 6px;font-size:12.5px;font-weight:500;color:var(--text-3)}
+.list{flex:1;overflow:auto}.room{height:40px;display:flex;align-items:center;padding:0 10px;border-radius:10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room:hover{background:var(--hover)}.room.on,.room.on:hover{background:var(--hover-strong)}
+.foot{display:flex;align-items:center;gap:10px;padding:8px 6px 0}.foot div{flex:1;line-height:1.25}.foot small{display:block;color:var(--text-2);font-size:12px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:600}
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:4px;height:56px;padding:0 14px}header h1{flex:1;margin:0;padding:0 8px;font-size:16px;font-weight:500}
+#burger{display:none}#burger.show{display:grid}
+.msgs{flex:1;overflow:auto}.in{max-width:var(--content-width);margin:0 auto;padding:8px 20px 24px;display:flex;flex-direction:column;gap:6px}
+.m{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.m.f{margin-top:14px}.m.me{align-self:flex-end;align-items:flex-end;max-width:75%}
+.nm{font-size:13px;font-weight:600}.b{line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.me .b{background:var(--bubble-mine);padding:10px 18px;border-radius:var(--radius-bubble)}
+.m.bx{max-width:75%}.bx .b{background:var(--bubble-other);padding:10px 18px;border-radius:var(--radius-bubble)}
+.t{font-size:11px;color:var(--text-3)}.me .t{padding-right:6px}.rd{color:var(--accent)}
+.cw{padding:4px 16px 10px}.box{max-width:var(--content-width);margin:0 auto;display:flex;align-items:flex-end;gap:8px;padding:8px 8px 8px 22px;background:var(--composer);border-radius:var(--radius-composer);border:1px solid transparent}
+.box:focus-within{border-color:var(--border)}.box textarea{flex:1;resize:none;border:0;outline:0;background:none;padding:9px 0;line-height:1.5;max-height:160px}
+.box textarea::placeholder{color:var(--text-3)}.send{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg)}.send svg{width:20px;height:20px}.send:disabled{background:var(--hover-strong);color:var(--text-3);cursor:default}
+#hint{text-align:center;margin:8px 0 0;font-size:12px;color:var(--text-3)}
+.edit [data-k]:hover{outline:2px dashed var(--accent);outline-offset:2px;border-radius:6px;cursor:text}.edit [data-k=logo]:hover{cursor:pointer}[contenteditable=true]{outline:2px solid var(--accent)!important;outline-offset:2px;border-radius:6px;cursor:text}
+#panel{position:fixed;right:16px;top:64px;bottom:16px;width:min(330px,calc(100vw - 32px));display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-pop);z-index:10;font-size:13.5px}
+#panel.hide{display:none}.ph{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 6px 18px;font-weight:600;font-size:15px}
+.pbody{flex:1;overflow:auto;padding:0 10px}.pf{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+.pf button{height:38px;border-radius:10px;padding:0 14px;background:var(--hover-strong)}.pf .p{flex:1;background:var(--text);color:var(--bg);font-weight:600}
+.sec>button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:11px 8px;font-weight:600;border-radius:8px;text-align:left}.sec>button:hover{background:var(--hover)}
+.sec>button::after{content:'›';font-size:18px;color:var(--text-3);transition:transform .15s}.sec.open>button::after{transform:rotate(90deg)}
+.sec .rows{display:none;padding:0 8px 10px}.sec.open .rows{display:block}
+.r{display:flex;align-items:center;gap:10px;min-height:38px}.r label{flex:1;color:var(--text-2)}
+.r input[type=text],.r select{width:56%;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);outline:0}.r input:focus,.r select:focus{border-color:var(--text-3)}
+.r input[type=range]{width:48%;accent-color:var(--accent)}.r input[type=color]{width:30px;height:30px;padding:0;border:1px solid var(--border);border-radius:50%;background:none;overflow:hidden}.r output{color:var(--text-3);font-size:12px;width:36px;text-align:right}
+.fb{height:32px;padding:0 12px;border-radius:8px;border:1px dashed var(--border);color:var(--text-2);max-width:56%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fb:hover{background:var(--hover)}
+.sw{position:relative;width:36px;height:22px;border-radius:11px;background:var(--hover-strong);flex-shrink:0;transition:background .15s;display:inline-block}.sw::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--bg);box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}.sw.on{background:var(--accent)}.sw.on::after{left:17px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;padding:2px 8px 10px}.presets button{padding:6px 12px;border-radius:999px;background:var(--hover)}.presets button:hover{background:var(--hover-strong)}
+.out{width:100%;height:100px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);resize:vertical}
+.et{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:999px;color:var(--text-2);font-size:13px}.et:hover{background:var(--hover)}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13.5px;z-index:30;transition:.2s;max-width:90vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+#login{position:fixed;inset:0;z-index:20;background:var(--bg);display:none;place-items:center;text-align:center}#login.show{display:grid}
+#login .cd{width:min(360px,90vw);display:flex;flex-direction:column;gap:12px;align-items:stretch}#login h1{margin:4px 0 0;font-size:28px}#login p{margin:-4px 0 8px;color:var(--text-2)}
+#login .f{height:52px;border:1px solid var(--border);border-radius:26px;display:flex;align-items:center;padding:0 20px;color:var(--text-3);text-align:left}#login .go{height:52px;border-radius:26px;background:var(--text);color:var(--bg);display:grid;place-items:center;font-weight:600}
+@media(max-width:800px){aside{position:fixed;inset:0 auto 0 0;z-index:5;width:min(300px,86vw);transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shadow-pop)}aside.open{transform:none}aside.off{width:min(300px,86vw)}.sin{width:100%}#burger{display:grid}}
+</style>
+</head>
+<body class="edit">
+<div class="app">
+  <aside id="side"><div class="sin">
+    <div class="top"><span class="brand" id="brand"></span><button class="ib" id="sbtn" aria-label="Cari"></button><button class="ib" id="collapse" aria-label="Tutup sidebar"></button></div>
+    <div class="nav" id="newchat" role="button" tabindex="0"></div><div id="navs" style="display:flex;flex-direction:column;gap:2px"></div>
+    <div class="label" id="hist" data-k="history"></div><div class="list" id="rooms"></div>
+    <div class="foot"><span class="av" id="av"></span><div><strong id="an" data-k="adminName"></strong><small>Admin</small></div></div>
+  </div></aside>
+  <main>
+    <header><button class="ib" id="burger" aria-label="Buka sidebar"></button><h1 id="title"></h1><button class="et" id="etoggle" title="Edit lewat klik langsung di pratinjau">Edit klik <i class="sw on"></i></button><button class="ib" id="ptoggle" title="Panel pengaturan"></button></header>
+    <div class="msgs" id="msgs"><div class="in" id="in"></div></div>
+    <div class="cw"><div class="box"><textarea id="ta" rows="1"></textarea><button class="send" id="send" disabled aria-label="Kirim"></button></div><p id="hint" data-k="hint"></p></div>
+  </main>
+</div>
+<div id="login"><div class="cd"><div id="lbrand" style="display:flex;justify-content:center"></div><h1 id="lt" data-k="loginTitle"></h1><p id="ls" data-k="loginSub"></p><div class="f">Username</div><div class="f">Password</div><div class="go">Masuk</div><button id="lclose" style="color:var(--text-3)">Tutup pratinjau</button></div></div>
+<input type="file" id="logofile" accept="image/*" hidden>
+
+<section id="panel"><div class="ph"><span>Pengaturan</span><button class="ib" id="pclose" aria-label="Tutup" style="width:32px;height:32px">✕</button></div>
+  <div class="pbody"><div id="ctrls"></div>
+    <div class="sec"><button>Preset</button><div class="rows"><div class="presets" id="presets"></div></div></div>
+    <div class="sec"><button>Kode hasil</button><div class="rows"><textarea class="out" id="o1" readonly></textarea><textarea class="out" id="o2" readonly style="margin-top:6px;height:70px"></textarea></div></div></div>
+  <div class="pf"><button id="plogin">Login</button><button id="reset">Reset</button><button class="p" id="dl" title="Ekstrak ke folder proyek, pilih Replace">Unduh .zip</button></div></section>
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),root=document.documentElement,esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ICO=Object.fromEntries(Object.entries({search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',panel:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/>',pen:'<path d="M12 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-5"/><path d="M18.4 3.6a1.8 1.8 0 0 1 2.5 2.5L12 15l-3.5 1 1-3.5z"/>',send:'<path d="M12 19V5M5 12l7-7 7 7"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',edit:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/>',images:'<rect x="3" y="7" width="14" height="13" rx="3"/><path d="M7 4h11a3 3 0 0 1 3 3v9"/><path d="M3 16l4-4 5 5"/><circle cx="12" cy="11" r="1"/>',scheduled:'<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 3v3M16 3v3M8.5 13l2.5 2.5 4.5-5"/>',library:'<rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="M15.5 5.5l3.6-1 2.9 14.2-3.6 1z"/>',plugins:'<circle cx="12" cy="12" r="3.5"/><path d="M15.5 9v4a2.5 2.5 0 0 0 5 0v-1a8.5 8.5 0 1 0-3.3 6.7"/>',explore:'<circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/>'}).map(([k,d])=>[k,`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`]));
+$('#sbtn').innerHTML=ICO.search;$('#collapse').innerHTML=ICO.panel;$('#burger').innerHTML=ICO.panel;$('#send').innerHTML=ICO.send;$('#ptoggle').innerHTML=ICO.gear;
+const FONTS=[["ui-sans-serif,-apple-system,system-ui,'Segoe UI',Roboto,sans-serif",'Sistem (default)'],["Georgia,'Times New Roman',serif",'Serif (Georgia)'],["ui-monospace,Menlo,Consolas,monospace",'Monospace'],["'Trebuchet MS',Verdana,sans-serif",'Trebuchet'],["'Segoe UI',Tahoma,sans-serif",'Segoe UI']];
+const DEF={theme:'light',appName:'Private Assistant',brandDisplay:'both',logoType:'text',logoText:'P',logoImg:'',logoName:'logo.png',logoSize:26,logoRadius:8,adminName:'Admin',memberName:'Member',
+newChat:'Chat baru',history:'Riwayat',archive:'Arsip',placeholder:'Tulis pesan…',hint:'Enter untuk kirim, Shift+Enter untuk baris baru',emptyTitle:'Mulai percakapan',emptyText:'Tulis pesan pertama di bawah. Percakapan ini terlihat oleh Admin dan Member.',loginTitle:'',loginSub:'Masuk untuk melanjutkan percakapan.',
+accent:'',bg:'',sidebar:'',composer:'',bubbleMine:'',text:'',font:FONTS[0][0],size:16,side:260,content:768,rb:24,rc:28,
+showSearch:true,showNav:true,nImages:'Gambar',nScheduled:'Terjadwal',nLibrary:'Pustaka',nPlugins:'Plugin',nExplore:'Jelajahi',showTime:true,showStatus:true,showHint:true,otherBubble:false};
+const TABS={
+Identitas:[['appName','Nama aplikasi','text'],['brandDisplay','Tampilan brand','select',[['both','Logo + nama'],['logo','Hanya logo'],['name','Hanya nama']]],['logoType','Jenis logo','select',[['text','Huruf / teks'],['emoji','Emoji'],['image','Gambar (upload)'],['none','Tanpa logo']]],['logoText','Huruf atau emoji logo','text'],['logoImg','Upload gambar logo','file'],['logoSize','Ukuran logo','range',14,72],['logoRadius','Kelengkungan logo','range',0,36],['adminName','Nama profil Admin','text'],['memberName','Nama profil Member','text']],
+Teks:[['newChat','Tombol chat baru','text'],['history','Judul daftar riwayat','text'],['archive','Judul arsip','text'],['placeholder','Placeholder input','text'],['hint','Teks bantuan input','text'],['emptyTitle','Judul chat kosong','text'],['emptyText','Teks chat kosong','text'],['loginTitle','Judul login','text'],['loginSub','Subjudul login','text']],
+Warna:[['theme','Tema','select',[['light','Terang'],['dark','Gelap']]],['accent','Aksen','color'],['bg','Latar utama','color'],['sidebar','Latar sidebar','color'],['composer','Kolom input','color'],['bubbleMine','Bubble kamu','color'],['text','Teks','color']],
+Bentuk:[['font','Font','select',FONTS],['size','Ukuran teks','range',13,20],['side','Lebar sidebar','range',200,360],['content','Lebar area chat','range',560,1000],['rb','Radius bubble','range',0,32],['rc','Radius kolom input','range',0,32]],
+Menu:[['showNav','Tampilkan daftar menu','check'],['nImages','Menu 1 (kosong = sembunyi)','text'],['nScheduled','Menu 2','text'],['nLibrary','Menu 3','text'],['nPlugins','Menu 4','text'],['nExplore','Menu 5','text']],
+Fitur:[['showSearch','Tombol cari di sidebar','check'],['showTime','Jam pesan','check'],['showStatus','Status terkirim / dibaca','check'],['showHint','Teks bantuan di bawah input','check'],['otherBubble','Pesan lawan pakai bubble','check']]};
+const VARS={accent:'--accent',bg:'--bg',sidebar:'--sidebar',composer:'--composer',bubbleMine:'--bubble-mine',text:'--text',font:'--font'};
+const PX={size:'--font-size',side:'--sidebar-width',content:'--content-width',rb:'--radius-bubble',rc:'--radius-composer'};
+const COLS=['accent','bg','sidebar','composer','bubbleMine','text'];
+const PRESETS={'ChatGPT terang':{},'ChatGPT gelap':{theme:'dark'},'Hijau hangat':{accent:'#16a34a',bubbleMine:'#dcf8c6',otherBubble:true,rb:16,rc:22,logoType:'emoji',logoText:'💬'},'Biru bersih':{accent:'#2563eb',rb:14,rc:16,otherBubble:true,logoRadius:14}};
+let S={...DEF};try{Object.assign(S,JSON.parse(localStorage.getItem('pa-demo3')||'{}'))}catch{}
+
+/* panel */
+function setLogo(f){if(!f)return;const r=new FileReader();r.onload=()=>{S.logoImg=r.result;S.logoName=f.name.replace(/[^\w.\-]/g,'_');S.logoType='image';apply()};r.readAsDataURL(f)}
+$('#logofile').onchange=e=>setLogo(e.target.files[0]);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),4500)}
+function buildForm(){
+  const box=$('#ctrls');box.innerHTML='';
+  Object.entries(TABS).forEach(([n,list],si)=>{
+    const sec=document.createElement('div');sec.className='sec'+(si?'':' open');sec.innerHTML=`<button>${n}</button>`;
+    const rows=document.createElement('div');rows.className='rows';
+    list.forEach(([k,label,t,a,b])=>{
+      const r=document.createElement('div');r.className='r';r.innerHTML=`<label for="c-${k}">${label}</label>`;let i;
+      if(t==='check'){i=document.createElement('button');i.className='sw';i.onclick=()=>{S[k]=!S[k];apply()}}
+      else if(t==='file'){i=document.createElement('button');i.className='fb';i.onclick=()=>$('#logofile').click()}
+      else{
+        if(t==='select'){i=document.createElement('select');a.forEach(([v,x])=>i.add(new Option(x,v)))}
+        else{i=document.createElement('input');i.type=t;if(t==='range'){i.min=a;i.max=b;const o=document.createElement('output');o.id='o-'+k;r.append(o)}}
+        i.oninput=()=>{S[k]=t==='range'?Number(i.value):i.value;if(k==='theme')COLS.forEach(x=>S[x]='');apply()};
+      }
+      i.id='c-'+k;r.append(i);rows.append(r)});
+    sec.append(rows);box.append(sec)});
+  document.querySelectorAll('#panel .sec>button').forEach(b=>b.onclick=()=>b.parentElement.classList.toggle('open'));
+  syncForm();
+}
+function syncForm(){
+  const cs=getComputedStyle(root);
+  Object.values(TABS).flat().forEach(([k,,t])=>{const i=$('#c-'+k);if(!i)return;
+    if(t==='check')i.classList.toggle('on',S[k]);
+    else if(t==='file')i.textContent=S.logoImg?S.logoName:'Pilih gambar…';
+    else if(t==='color')i.value=S[k]||cs.getPropertyValue(VARS[k]).trim();
+    else i.value=S[k];
+    const o=$('#o-'+k);if(o)o.textContent=S[k]+'px'});
+}
+
+/* pratinjau */
+function brand(part,size){
+  const px=size||S.logoSize;let lg='';
+  if(S.logoType==='image'&&S.logoImg)lg=`<img src="${S.logoImg}" style="width:${px}px;height:${px}px;border-radius:${S.logoRadius}px;object-fit:contain">`;
+  else if(S.logoType==='image')lg=`<span class="lg" style="width:${px}px;height:${px}px;border-radius:${S.logoRadius}px">?</span>`;
+  else if(S.logoType==='text')lg=`<span class="lg" style="width:${px}px;height:${px}px;border-radius:${S.logoRadius}px;font-size:${px*.55}px">${esc(S.logoText)}</span>`;
+  else if(S.logoType==='emoji')lg=`<span style="font-size:${px}px;line-height:1">${esc(S.logoText)}</span>`;
+  const sl=part?part==='logo':S.brandDisplay!=='name',sn=part?part==='name':S.brandDisplay!=='logo';
+  return `<span class="bw">${sl&&lg?`<span data-k="logo" style="display:inline-flex" title="Klik untuk ganti logo">${lg}</span>`:''}${sn?`<span data-k="appName">${esc(S.appName)}</span>`:''}</span>`;
+}
+const now=Date.now(),tm=m=>new Date(now-m*6e4).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+const rooms=[{id:1,title:'Rencana liburan',msgs:[['a','Jadi weekend ini jadi ke pantai?',190],['m','Jadi dong 🏖️ aku udah cek cuacanya cerah.',185],['m','Bawa payung juga buat jaga-jaga.',184],['a','Mantap. Berangkat jam 7 ya.',180]]},{id:2,title:'Catatan belanja',msgs:[['m','Titip beli telur sama susu ya.',1500],['a','Oke, ada lagi?',1490]]}];
+let cur=1;const room=()=>rooms.find(r=>r.id===cur);
+const NAVS=[['nImages','images'],['nScheduled','scheduled'],['nLibrary','library'],['nPlugins','plugins'],['nExplore','explore']];
+function render(){
+  $('#brand').innerHTML=brand();$('#lbrand').innerHTML=brand('logo',44);
+  $('#newchat').innerHTML=`${ICO.pen}<span data-k="newChat">${esc(S.newChat)}</span>`;
+  $('#navs').innerHTML=S.showNav?NAVS.filter(([k])=>S[k]).map(([k,i])=>`<div class="nav" role="button" tabindex="0">${ICO[i]}<span data-k="${k}">${esc(S[k])}</span></div>`).join(''):'';
+  $('#hist').textContent=S.history;$('#ta').placeholder=S.placeholder;$('#hint').textContent=S.hint;$('#hint').style.display=S.showHint?'':'none';
+  $('#sbtn').style.display=S.showSearch?'':'none';$('#an').textContent=S.adminName;$('#av').textContent=(S.adminName[0]||'A').toUpperCase();
+  $('#lt').textContent=S.loginTitle||S.appName;$('#ls').textContent=S.loginSub;document.title=S.appName+' – Editor';
+  $('#rooms').innerHTML='';
+  rooms.forEach(r=>{const d=document.createElement('div');d.className='room'+(r.id===cur?' on':'');d.textContent=r.title;d.onclick=()=>{if(d.isContentEditable||cur===r.id)return;cur=r.id;$('#side').classList.remove('open');render()};d.ondblclick=()=>{d.contentEditable='true';d.focus();getSelection().selectAllChildren(d);d.onblur=()=>{d.contentEditable='false';r.title=d.textContent.trim()||r.title;render()};d.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();d.blur()}}};$('#rooms').append(d)});
+  $('#title').textContent=room().title;
+  const box=$('#in');box.innerHTML='';
+  if(!room().msgs.length)box.innerHTML=`<div style="text-align:center;padding:90px 0;color:var(--text-2)"><h2 data-k="emptyTitle" style="color:var(--text);font-size:28px;margin:0 0 8px">${esc(S.emptyTitle)}</h2><div data-k="emptyText">${esc(S.emptyText)}</div></div>`;
+  room().msgs.forEach(([who,text,ago],i)=>{
+    const mine=who==='a',first=room().msgs[i-1]?.[0]!==who,el=document.createElement('div');
+    el.className='m'+(mine?' me':'')+(first?' f':'')+(!mine&&S.otherBubble?' bx':'');
+    if(!mine&&first)el.innerHTML=`<span class="nm" data-k="memberName">${esc(S.memberName)}</span>`;
+    const b=document.createElement('div');b.className='b';b.textContent=text;el.append(b);
+    const t=document.createElement('span');t.className='t';t.innerHTML=(S.showTime?tm(ago):'')+(mine&&S.showStatus?' <span class="rd">✓✓</span>':'');if(t.innerHTML)el.append(t);
+    box.append(el)});
+  $('#msgs').scrollTop=1e9;
+}
+function send(){const v=$('#ta').value.trim();if(!v)return;room().msgs.push(['a',v,0]);$('#ta').value='';$('#ta').style.height='auto';$('#send').disabled=true;render()}
+$('#ta').oninput=e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,160)+'px';$('#send').disabled=!e.target.value.trim()};
+$('#ta').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};
+$('#send').onclick=send;
+$('#newchat').onclick=()=>{const r={id:Date.now(),title:'Percakapan baru',msgs:[]};rooms.unshift(r);cur=r.id;render()};
+$('#collapse').onclick=()=>{$('#side').classList.remove('open');$('#side').classList.add('off');$('#burger').classList.add('show')};
+$('#burger').onclick=()=>{$('#side').classList.remove('off');$('#side').classList.add('open');$('#burger').classList.remove('show')};
+$('#ptoggle').onclick=()=>$('#panel').classList.toggle('hide');
+$('#etoggle').onclick=()=>{const on=document.body.classList.toggle('edit');$('#etoggle .sw').classList.toggle('on',on)};$('#pclose').onclick=()=>$('#panel').classList.add('hide');
+$('#plogin').onclick=()=>$('#login').classList.add('show');$('#lclose').onclick=()=>$('#login').classList.remove('show');
+
+/* edit via klik */
+document.addEventListener('click',e=>{
+  if(!document.body.classList.contains('edit'))return;
+  const el=e.target.closest('[data-k]');if(!el||el.isContentEditable)return;
+  e.preventDefault();e.stopPropagation();
+  const k=el.dataset.k;if(k==='logo'){$('#logofile').click();return}
+  el.contentEditable='true';el.focus();getSelection().selectAllChildren(el);
+  const done=()=>{el.removeEventListener('blur',done);el.contentEditable='false';S[k]=el.textContent.trim()||DEF[k];apply()};
+  el.addEventListener('blur',done);
+  el.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();el.blur()}if(ev.key==='Escape'){el.textContent=S[k]||DEF[k];el.blur()}};
+},true);
+
+/* ZIP (tanpa library) */
+function crc32(b){const t=crc32.t||(crc32.t=[...Array(256)].map((_,n)=>{let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;return c>>>0}));let r=-1;for(const x of b)r=t[(r^x)&255]^(r>>>8);return(r^-1)>>>0}
+function zip(files){const enc=new TextEncoder(),parts=[],cd=[];let off=0,cdLen=0;
+  for(const f of files){const n=enc.encode(f.name),d=f.data,crc=crc32(d);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,n.length,true);
+    parts.push(h.buffer,n,d);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,n.length,true);c.setUint32(42,off,true);
+    cd.push(c.buffer,n);cdLen+=46+n.length;off+=30+n.length+d.length}
+  const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cdLen,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cd,e.buffer],{type:'application/zip'})}
+
+function outputs(){
+  const img=S.logoType==='image'&&S.logoImg?`/assets/logo/${S.logoName}`:'/assets/logo/logo.svg';
+  const c={appName:S.appName,brandDisplay:S.brandDisplay,logo:{type:S.logoType,text:S.logoText,image:img,size:S.logoSize,radius:S.logoRadius},profiles:{admin:S.adminName,member:S.memberName},navItems:S.showNav?NAVS.filter(([k])=>S[k]).map(([k,i])=>({id:i,label:S[k],icon:i})):[],
+    labels:{newChat:S.newChat,history:S.history,archive:S.archive,placeholder:S.placeholder,hint:S.hint,emptyTitle:S.emptyTitle,emptyText:S.emptyText},
+    login:{title:S.loginTitle||S.appName,subtitle:S.loginSub},features:{search:S.showSearch,timestamps:S.showTime,status:S.showStatus,hint:S.showHint,otherBubble:S.otherBubble}};
+  const gen=[],col=[];
+  Object.entries(PX).forEach(([k,v])=>S[k]!==DEF[k]&&gen.push(`  ${v}: ${S[k]}px;`));
+  if(S.font!==DEF.font)gen.push(`  --font: ${S.font};`);
+  COLS.forEach(k=>S[k]&&col.push(`  ${VARS[k]}: ${S[k]};`));
+  const d=S.theme==='dark';let css='/* Dihasilkan oleh tools/demo.html */\n';
+  if(gen.length||(!d&&col.length))css+=`:root {\n${[...gen,...(d?[]:col)].join('\n')}\n}\n`;
+  if(d&&col.length)css+=`:root[data-theme='dark'] {\n${col.join('\n')}\n}\n`;
+  return{cfg:'// Dihasilkan oleh tools/demo.html\nexport default '+JSON.stringify(c,null,2)+';\n',css};
+}
+function apply(){
+  root.dataset.theme=S.theme;
+  const set=(k,v)=>v===''?root.style.removeProperty(k):root.style.setProperty(k,v);
+  Object.entries(VARS).forEach(([k,v])=>set(v,S[k]===DEF[k]?'':S[k]));
+  Object.entries(PX).forEach(([k,v])=>set(v,S[k]===DEF[k]?'':S[k]+'px'));
+  render();syncForm();const o=outputs();$('#o1').value=o.cfg;$('#o2').value=o.css;
+  try{localStorage.setItem('pa-demo3',JSON.stringify(S))}catch{}
+}
+$('#dl').onclick=()=>{
+  const o=outputs(),enc=new TextEncoder(),files=[{name:'src/config/appConfig.js',data:enc.encode(o.cfg)},{name:'src/styles/theme.css',data:enc.encode(o.css)}];
+  if(S.logoType==='image'&&S.logoImg)files.push({name:'public/assets/logo/'+S.logoName,data:Uint8Array.from(atob(S.logoImg.split(',')[1]),c=>c.charCodeAt(0))});
+  files.push({name:'BACA-SAYA.txt',data:enc.encode('Ekstrak zip ini ke folder proyek (Chatting), pilih Replace/Timpa.\nLalu: git add . ; git commit ; git push (atau upload manual ke GitHub).\nIsi: src/config/appConfig.js, src/styles/theme.css'+(S.logoType==='image'?', public/assets/logo/'+S.logoName:'')+'\n')});
+  const a=document.createElement('a');a.href=URL.createObjectURL(zip(files));a.download='perubahan-tampilan.zip';a.click();toast('Zip diunduh. Ekstrak ke folder proyek, lalu pilih Replace.');setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+Object.keys(PRESETS).forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{S={...DEF,logoImg:S.logoImg,logoName:S.logoName,appName:S.appName,adminName:S.adminName,memberName:S.memberName,...PRESETS[n]};apply()};$('#presets').append(b)});
+$('#reset').onclick=()=>{S={...DEF};apply()};
+buildForm();apply();
+</script>
+</body>
+</html>

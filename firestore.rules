@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Akun sah = punya dokumen users/{uid}. Dokumen ini hanya dibuat lewat Firebase Console.
+    function authorized() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    function isAdmin() {
+      return authorized()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{uid} {
+      allow read: if authorized();
+      allow create, delete: if false;
+      // Hanya displayName yang boleh diubah: oleh pemilik akun atau Admin. Role & username terkunci.
+      allow update: if authorized()
+        && (request.auth.uid == uid || isAdmin())
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 40;
+    }
+
+    // Selain users/: ditolak semua. Aturan rooms & messages ditambahkan di Phase 4-5.
+  }
+}

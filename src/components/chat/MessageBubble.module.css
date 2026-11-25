@@ -1,0 +1,12 @@
+.row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.first { margin-top: 14px; }
+.mine { align-self: flex-end; align-items: flex-end; max-width: 75%; }
+.name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.bubble { line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mine .bubble { background: var(--bubble-mine); padding: 10px 18px; border-radius: var(--radius-bubble); }
+.meta { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-3); }
+.mine .meta { padding-right: 6px; }
+.status { display: inline-flex; }
+.read { color: var(--accent); }
+.boxed { max-width: 75%; }
+.boxed .bubble { background: var(--bubble-other); padding: 10px 18px; border-radius: var(--radius-bubble); }
